@@ -101,10 +101,13 @@ if input().lower() == "j":
 						if myFile not None:
 							savefile(date.split("-")[0], date + ".pdf", myFile)
 						else:
-							print("Herunterladen der Datei fehlgeschlagen. Überspringe!")
+							print("Herunterladen der Datei " + date + " fehlgeschlagen. Überspringe!")
+					print("-----------------------------------------")
+					print("Alle Dateien erfolgreich heruntergeladen!")
+					print("-----------------------------------------")
 				except:
 					traceback.print_exc()
-					print("Herunterladen Dateien fehlgeschlagen!")		
+					print("Herunterladen der Dateien fehlgeschlagen!")		
 		except:
 			traceback.print_exc()
 			print("Herunterladen der Übersicht fehlgeschlagen. Datum überprüfen!")
