@@ -32,10 +32,15 @@ class EPInfonet(object):
 		self.identity = r.headers["Set-Cookie"].split(";")[0]
 		
 	def getPdfFile(self, number):
-		cookie = self.phpsessionid + "; " + self.epinfocookie + "; " + self.identity
-		authheader = {"Cookie": cookie}
-		pdf = self.session.get("https://www.ep-infonet.de/apps/legacy/index/index?legacy_app_name=bestellbestand_index&layouttype=partial?id=0&re_nr=" + str(number) + "&phase=dokument_anfragen", headers=authheader)
-		return pdf.content
+		for tries in range(0, 10):
+			try:
+				cookie = self.phpsessionid + "; " + self.epinfocookie + "; " + self.identity
+				authheader = {"Cookie": cookie}
+				pdf = self.session.get("https://www.ep-infonet.de/apps/legacy/index/index?legacy_app_name=bestellbestand_index&layouttype=partial?id=0&re_nr=" + str(number) + "&phase=dokument_anfragen", headers=authheader)
+				return pdf.content
+			except:
+				print("Fehler beim Herunterladen der Datei " + str(number) + ". Versuche es erneut! (Versuch " + str(tries + 1) + " von 10)")
+		return None
 
 	def getOverview(self, startdate, enddate):
 		#get overview
@@ -92,7 +97,11 @@ if input().lower() == "j":
 			if input().lower() == "j":
 				try:
 					for date in files:
-						savefile(date.split("-")[0], date + ".pdf", ep.getPdfFile(files[date]))
+						myFile = ep.getPdfFile(files[date])
+						if myFile not None:
+							savefile(date.split("-")[0], date + ".pdf", myFile)
+						else:
+							print("Herunterladen der Datei fehlgeschlagen. Überspringe!")
 				except:
 					traceback.print_exc()
 					print("Herunterladen Dateien fehlgeschlagen!")		
