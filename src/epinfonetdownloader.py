@@ -98,7 +98,7 @@ if input().lower() == "j":
 				try:
 					for date in files:
 						myFile = ep.getPdfFile(files[date])
-						if myFile not None:
+						if myFile is not None:
 							savefile(date.split("-")[0], date + ".pdf", myFile)
 						else:
 							print("Herunterladen der Datei " + date + " fehlgeschlagen. Überspringe!")
