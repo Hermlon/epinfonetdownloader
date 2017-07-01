@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 from bs4 import BeautifulSoup
 import traceback
 import os
+import time
 
 class EPInfonet(object):
 	
@@ -32,14 +33,15 @@ class EPInfonet(object):
 		self.identity = r.headers["Set-Cookie"].split(";")[0]
 		
 	def getPdfFile(self, number):
-		for tries in range(0, 10):
+		for tries in range(0, 20):
 			try:
 				cookie = self.phpsessionid + "; " + self.epinfocookie + "; " + self.identity
 				authheader = {"Cookie": cookie}
-				pdf = self.session.get("https://www.ep-infonet.de/apps/legacy/index/index?legacy_app_name=bestellbestand_index&layouttype=partial?id=0&re_nr=" + str(number) + "&phase=dokument_anfragen", headers=authheader)
+				pdf = self.session.get("https://www.ep-infonet.de/apps/legacy/index/index?legacy_app_name=bestellbestand_index&layouttype=partial?id=0&re_nr=" + str(number) + "&phase=dokument_anfragen", headers=authheader, timeout=20)
 				return pdf.content
 			except:
-				print("Fehler beim Herunterladen der Datei " + str(number) + ". Versuche es erneut! (Versuch " + str(tries + 1) + " von 10)")
+				print("Fehler beim Herunterladen der Datei " + str(number) + ". Versuche es erneut! (Versuch " + str(tries + 1) + " von 20)")
+				time.sleep(20)
 		return None
 
 	def getOverview(self, startdate, enddate):
@@ -68,12 +70,18 @@ class EPInfonet(object):
 		return result
 		
 def savefile(path, name, text):
-	if not os.path.exists(path):
-		os.makedirs(path)
-	print("Schreibe Datei " + name)
-	myFile = open(path + "/" + name, "wb")
-	myFile.write(text)
-	myFile.close()
+	myFile = None
+	try:
+		if not os.path.exists(path):
+			os.makedirs(path)
+		print("Schreibe Datei " + name)
+		myFile = open(path + "/" + name, "wb")
+		myFile.write(text)
+		myFile.close()
+	except:
+		if myFile is not None:
+			myFile.close()
+		print("Fehler beim Speichern der Datei " + name)
 
 print("Möchtest du dich zu ep-infonet.de verbinden? (J/n):")
 if input().lower() == "j":
